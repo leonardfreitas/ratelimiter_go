@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"time"
 
@@ -10,10 +11,25 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+type Response struct {
+	Success bool `json:"success"`
+}
+
 func listOrders(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
+	response := Response{
+		Success: true,
+	}
+
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("list of orders"))
+	w.Write(jsonResponse)
 }
 
 func main() {
